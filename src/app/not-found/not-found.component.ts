@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { Redirect } from './constants/redirect-to-map';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TuiLink } from '@taiga-ui/core';
+import { TuiButton, TuiLink } from '@taiga-ui/core';
+import { TuiBlockStatus } from '@taiga-ui/layout';
 
 @Component({
   selector: 'app-not-found',
   standalone: true,
-  imports: [CommonModule, TuiLink],
+  imports: [CommonModule, TuiLink, TuiBlockStatus, TuiButton, NgOptimizedImage],
   templateUrl: './not-found.component.html',
   styleUrl: './not-found.component.less'
 })
