@@ -1,0 +1,46 @@
+@if (authService.currentUser === null) {
+  <div
+    tuiCardLarge
+    class="tui-space_auto tui-container_menu"
+  >
+    <p class="tui-text_h3 tui-space_auto">
+      Hi! It seems like you are a new user)
+    </p>
+    <div class="tui-text_body-xl tui-space_auto">
+      Welcome to our application. <a tuiLink [routerLink]="[KnownRoutePath.Register]">Register</a> and become part of
+      our community.
+      If you are already with us, <a tuiLink [routerLink]="[KnownRoutePath.Login]">login</a>
+    </div>
+    <img ngSrc="assets/images/human-being.png"
+         alt="human-being"
+         width="400"
+         height="400"
+         sizes="(max-width: 768px) 100vw, 50vw"
+         class="tui-space_auto"
+    />
+  </div>
+} @else {
+  <div
+    tuiCardLarge
+    class="tui-space_auto tui-container_menu"
+  >
+    Hi! {{ authService.currentUser!.username }}
+    @if (authService.currentUser!.accountType !== 'ADMIN'){
+    <div class="tui-text_body-xl tui-space_auto">
+      You are not admin(
+    </div>
+    } @else {
+      <div class="tui-text_body-xl tui-space_auto">
+        You are admin please make your work)
+      </div>
+    }
+    <button
+      iconStart="@tui.log-out"
+      tuiIconButton
+      type="button"
+      (click)="logout()"
+    >
+      Log out
+    </button>
+  </div>
+}

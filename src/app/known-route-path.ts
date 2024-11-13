@@ -1,4 +1,6 @@
 export enum KnownRoutePath {
   NotFound = 'not-found',
-  Authentication = 'auth',
+  User = 'user',
+  Login = 'login',
+  Register = 'register',
 }

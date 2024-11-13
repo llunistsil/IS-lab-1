@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { KnownRoutePath } from './known-route-path';
+import { authGuard } from './auth/auth.guard';
 
 export const appRoutes: Route[] = [
   {
@@ -8,11 +9,12 @@ export const appRoutes: Route[] = [
       import('./humanity/humanity.routes').then(
         module => module.routes,
       ),
+    canActivate: [authGuard],
   },
   {
-    path: KnownRoutePath.Authentication,
+    path: KnownRoutePath.User,
     loadChildren: () =>
-      import('./authentication/authentication.routes').then(
+      import('./user/user.routes').then(
         module => module.routes,
       ),
   },

@@ -1,5 +1,14 @@
-<tui-root>
-  <router-outlet></router-outlet>
+<tui-root >
+  <header tuiNavigationHeader>
+    <span tuiNavigationLogo>
+      <tui-icon icon="@tui.person-standing" />
+      <span tuiFade>Human Being</span>
+    </span>
+    <hr />
+  </header>
+  <main tuiNavigationMain>
+    <router-outlet></router-outlet>
+  </main>
 
   <!--
      If you need, you can add something between Taiga portal layers:
