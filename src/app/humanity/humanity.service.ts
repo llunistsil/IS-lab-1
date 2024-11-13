@@ -28,12 +28,13 @@ export class HumanityService {
       .get<PaginatedResponse<Human>>(url, { headers: this.authService.getAuthHeaders() });
   }
 
-  getCarList$(): Observable<PaginatedResponse<Car>> {
+  getCarList$(params: PaginatedRequest): Observable<PaginatedResponse<Car>> {
     const url = `${ environment.apiUrl }/car`;
 
     return this.http
-      .get<PaginatedResponse<Car>>(url, { headers: this.authService.getAuthHeaders() });
+      .get<PaginatedResponse<Car>>(url, { headers: this.authService.getAuthHeaders(), params: params });
   }
+
   getCarByNameContaining$(): Observable<PaginatedResponse<Car>> {
     const url = `${ environment.apiUrl }/car/name-containing`;
 

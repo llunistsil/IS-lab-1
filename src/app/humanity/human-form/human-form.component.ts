@@ -53,7 +53,10 @@ export class HumanFormComponent {
   humanForm?: FormGroup;
   isLoading = signal(true);
 
-  cars = toSignal(this.humanService.getCarList$());
+  cars = toSignal(this.humanService.getCarList$({
+    page: 0,
+    size: 100
+  }));
 
   get isEditable(): boolean {
     return [ActionWithHumans.Update, ActionWithHumans.Create].includes(this.context.data.mode);
