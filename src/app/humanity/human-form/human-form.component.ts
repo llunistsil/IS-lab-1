@@ -65,7 +65,7 @@ export class HumanFormComponent {
   constructor() {
     effect(() => {
       const dependencies = {
-        cars: this.cars()!.content,
+        cars: this.cars()?.content,
       };
 
       const human: Human | undefined = this.context.data.item;
@@ -81,9 +81,9 @@ export class HumanFormComponent {
         realHero: [human?.realHero ?? false],
         hasToothpick: [human?.hasToothpick ?? false, Validators.required],
         car: this.fb.group({
-          id: [dependencies.cars[0].id ?? 0, Validators.required],
-          name: [dependencies.cars[0].name ?? '', [Validators.required, Validators.minLength(1)]],
-          cool: [dependencies.cars[0].cool ?? false],
+          id: [dependencies.cars ? dependencies.cars[0].id : 0, Validators.required],
+          name: [dependencies.cars ? dependencies.cars[0].name : '', [Validators.required, Validators.minLength(1)]],
+          cool: [dependencies.cars ? dependencies.cars[0].cool : false],
         }),
         mood: [human?.mood ?? Mood.APATHY, Validators.required],
         impactSpeed: [human?.impactSpeed ?? 0, Validators.min(0)],
