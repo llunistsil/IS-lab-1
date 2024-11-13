@@ -39,7 +39,7 @@ export class AuthService{
   }
 
   login(request: AuthRequest): Observable<AuthResponse> {
-    const url = `${environment.apiUrl}/auth/authenticate`;
+    const url = `${environment.apiUrl}/auth/login`;
 
     const loginObservable = this.http.post<AuthResponse>(url, request, {
       observe: 'response',
@@ -160,7 +160,7 @@ export class AuthService{
   getAdminRequestsForApproval$(): Observable<
     RequestForApproval[]
   > {
-    const url = `${environment.apiUrl}/admin-request/all`;
+    const url = `${environment.apiUrl}/admin/registration-requests`;
 
     return this.http
       .get<RequestForApproval[]>(url, {
@@ -174,7 +174,7 @@ export class AuthService{
   }
 
   approveAdminRequest$(request: RequestForApproval): Observable<void> {
-    const url = `${environment.apiUrl}/admin-request/${request.id}/approve`;
+    const url = `${environment.apiUrl}/admin/registration-requests/${request.id}`;
 
     return (
       this.http
