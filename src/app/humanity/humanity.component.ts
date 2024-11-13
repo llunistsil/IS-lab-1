@@ -10,7 +10,7 @@ import { ActionWithHumans, Coordinates, Human, Mood, WeaponType } from './models
 import { Car } from './models/car';
 import { HumanityService } from './humanity.service';
 import { AuthService } from '../auth/auth.service';
-import { tuiTakeUntilDestroyed } from '@taiga-ui/cdk';
+import { TuiLet, tuiTakeUntilDestroyed } from '@taiga-ui/cdk';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { HumanFormComponent, HumanFormDialogContext } from './human-form/human-form.component';
 import { interval, merge, switchMap } from 'rxjs';
@@ -18,7 +18,7 @@ import { interval, merge, switchMap } from 'rxjs';
 @Component({
   selector: 'app-humanity',
   standalone: true,
-  imports: [CommonModule, TuiLink, RouterLink, TuiAccordion, TuiTableFilters, ReactiveFormsModule, TuiLoader, TuiTable, TuiTextfield, TuiTablePagination, TuiStatus, TuiButton],
+  imports: [CommonModule, TuiLink, RouterLink, TuiAccordion, TuiTableFilters, ReactiveFormsModule, TuiLoader, TuiTable, TuiTextfield, TuiTablePagination, TuiStatus, TuiButton, TuiLet],
   templateUrl: './humanity.component.html',
 })
 export class HumanityComponent {
