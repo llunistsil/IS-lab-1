@@ -40,7 +40,7 @@ export class AppComponent {
             mode: ActionWithHumans.Create,
           },
           dismissible: true,
-          label: 'Create dragon',
+          label: 'Create human',
         }
       )
       .pipe(tuiTakeUntilDestroyed(this.destroyRef))
