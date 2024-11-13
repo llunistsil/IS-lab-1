@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TUI_VALIDATION_ERRORS, TuiCheckbox, TuiFieldErrorPipe } from '@taiga-ui/kit';
 import { AsyncPipe } from '@angular/common';
 import { HumanityService } from '../humanity.service';
-import { ActionWithHumans, Coordinates, Human, Mood, WeaponType } from '../models/human';
+import { ActionWithHumans, Human, Mood, WeaponType } from '../models/human';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { injectContext } from '@taiga-ui/polymorpheus';
 import { TuiInputDateModule, TuiSelectModule } from '@taiga-ui/legacy';
@@ -68,10 +68,6 @@ export class HumanFormComponent {
         cars: this.cars()!.content,
       };
 
-      if (Object.values(dependencies).some((dependency) => !dependency)) {
-        return;
-      }
-
       const human: Human | undefined = this.context.data.item;
 
       this.humanForm = this.fb.group({
@@ -85,15 +81,15 @@ export class HumanFormComponent {
         realHero: [human?.realHero ?? false],
         hasToothpick: [human?.hasToothpick ?? false, Validators.required],
         car: this.fb.group({
-          id: [dependencies.cars[0].id, Validators.required],
-          name: [dependencies.cars[0].name, [Validators.required, Validators.minLength(1)]],
-          cool: [dependencies.cars[0].cool],
+          id: [dependencies.cars[0].id ?? 0, Validators.required],
+          name: [dependencies.cars[0].name ?? '', [Validators.required, Validators.minLength(1)]],
+          cool: [dependencies.cars[0].cool ?? false],
         }),
-        mood: [human?.mood, Validators.required],
-        impactSpeed: [human?.impactSpeed, Validators.min(0)],
-        soundTrackName: [human?.soundTrackName, Validators.required],
-        minutesOfWaiting: [human?.minutesOfWaiting, Validators.required],
-        weaponType: [human?.weaponType, Validators.required],
+        mood: [human?.mood ?? Mood.APATHY, Validators.required],
+        impactSpeed: [human?.impactSpeed ?? 0, Validators.min(0)],
+        soundTrackName: [human?.soundTrackName ?? '', Validators.required],
+        minutesOfWaiting: [human?.minutesOfWaiting ?? 0, Validators.required],
+        weaponType: [human?.weaponType ?? WeaponType.AXE, Validators.required],
       });
 
       if (this.context.data.mode === ActionWithHumans.Read) {
