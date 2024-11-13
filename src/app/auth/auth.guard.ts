@@ -1,6 +1,5 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { map } from 'rxjs';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 import { AccountType } from './models/user';
@@ -14,7 +13,7 @@ export const authGuard: CanActivateFn = () => {
     authService.currentUser = {
       username: 'admin',
       token: '12345',
-      accountType: AccountType.User,
+      accountType: AccountType.Admin,
     };
     console.log(authService.currentUser);
 
@@ -22,8 +21,7 @@ export const authGuard: CanActivateFn = () => {
   } else if (authService.isAuthenticated) {
     return true;
   } else {
-    return authService
-      .authViaToken()
-      .pipe(map((isSuccess) => (isSuccess ? true : router.parseUrl(`${KnownRoutePath.User}/${KnownRoutePath.Login}`))));
+    router.navigate([KnownRoutePath.User]);
+    return false;
   }
 };

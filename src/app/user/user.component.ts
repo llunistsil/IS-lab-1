@@ -6,6 +6,9 @@ import { KnownRoutePath } from '../known-route-path';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { tuiTakeUntilDestroyed } from '@taiga-ui/cdk';
+import { BehaviorSubject, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { RequestForApproval } from './models/request-for-approval';
 
 @Component({
   selector: 'app-user',
@@ -20,10 +23,22 @@ export class UserComponent {
   protected readonly destroyRef = inject(DestroyRef);
   protected readonly router = inject(Router);
 
-  logout(): void {
+  private readonly refreshAdminRequestsForApproval$ = new BehaviorSubject(null);
+
+  adminRequestsForApproval = toSignal(
+    this.refreshAdminRequestsForApproval$.pipe(
+      tap(() => console.log('???')),
+      switchMap(() => this.authService.getAdminRequestsForApproval$()),
+      takeUntilDestroyed(this.destroyRef)
+    )
+  );
+
+  approve(request: RequestForApproval): void {
     this.authService
-      .logout()
+      .approveAdminRequest$(request)
       .pipe(tuiTakeUntilDestroyed(this.destroyRef))
-      .subscribe({ complete: void this.router.navigate([KnownRoutePath.Login]) });
+      .subscribe({
+        complete: () => this.refreshAdminRequestsForApproval$.next(null),
+      });
   }
 }

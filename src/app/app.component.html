@@ -1,10 +1,37 @@
-<tui-root >
+<tui-root>
   <header tuiNavigationHeader>
     <span tuiNavigationLogo>
       <tui-icon icon="@tui.person-standing" />
       <span tuiFade>Human Being</span>
     </span>
     <hr />
+    <a
+      iconStart="@tui.book-user"
+      tuiIconButton
+      type="button"
+      [routerLink]="[KnownRoutePath.User]"
+    >
+      Settings
+    </a>
+    @if (authService.currentUser?.username) {
+      <button
+        iconStart="@tui.plus"
+        tuiIconButton
+        type="button"
+        (click)="createNewHuman()"
+      >
+        Create new dragon
+      </button>
+      <button
+        iconStart="@tui.log-out"
+        tuiIconButton
+        type="button"
+        (click)="logout()"
+      >
+        Log out
+      </button>
+      <tui-avatar [src]="authService.currentUser!.username.slice(0, 2)" />
+    }
   </header>
   <main tuiNavigationMain>
     <router-outlet></router-outlet>

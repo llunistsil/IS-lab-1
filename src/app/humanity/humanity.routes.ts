@@ -6,8 +6,4 @@ export const routes: Route[] = [
     path: '',
     component: HumanityComponent,
   },
-  {
-    path: '**',
-    redirectTo: '/',
-  },
 ];

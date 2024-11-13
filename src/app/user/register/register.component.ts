@@ -85,11 +85,14 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    this.authService
-      .register({
-        username: this.registrationForm.get('username')!.value,
-        password: this.registrationForm.get('password')!.value,
-      })
+    const requestParams = {
+      username: this.registrationForm.get('username')!.value,
+      password: this.registrationForm.get('password')!.value,
+    };
+    const hasAdminRequest = this.registrationForm.get('isAdmin')!.value;
+    const registerByRole = hasAdminRequest ? this.authService.register(requestParams) : this.authService.registerAdmin(requestParams);
+
+    registerByRole
       .subscribe({
         complete: () => {
           const hasAdminRequest = this.registrationForm.get('isAdmin')!.value;

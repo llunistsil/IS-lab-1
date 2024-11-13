@@ -21,8 +21,4 @@ export const routes: Route[] = [
     path: '',
     component: UserComponent,
   },
-  {
-    path: '**',
-    redirectTo: '/',
-  },
 ];

@@ -1,1 +1,98 @@
-<a tuiLink [routerLink]="[KnownRoutePath.User]">login</a>
+<ng-container tuiTableFilters>
+  <tui-accordion-item class="filters__accordion">
+    Filters
+    <ng-template tuiAccordionItemContent>
+      <form [formGroup]="filtersForm" class="filters__form">
+        @for (filter of filterableColumns; track filter) {
+          <tui-textfield>
+            <label for="filter" tuiLabel>{{ columnNames[filter] }}</label>
+            <input
+              id="filter"
+              tuiTextfield
+              [formControlName]="filter"
+              [tuiTableFilter]="filter"
+              [tuiGenericFilter]="filterFn"
+            />
+          </tui-textfield>
+        }
+      </form>
+    </ng-template>
+  </tui-accordion-item>
+  <tui-loader
+    [overlay]="true"
+    [showLoader]="isLoading()"
+    class="table-container"
+  >
+    <table tuiTable class="table" [columns]="columns">
+      <thead>
+      <tr tuiThGroup>
+        @for (column of columns; track column) {
+          <th *tuiHead="column" tuiTh>
+            {{ columnNames[column] }}
+          </th>
+        }
+      </tr>
+      </thead>
+      <tbody
+        *tuiLet="data() | tuiTableSort as sortedData"
+        tuiTbody
+        [data]="sortedData"
+      >
+      <tr *ngFor="let item of sortedData | tuiTableFilters | async" tuiTr>
+        @for (column of humanColumns; track column) {
+          <td *tuiCell="column" tuiTd>
+            {{ item[column] }}
+          </td>
+        }
+        <td *tuiCell="'actions'" tuiTd>
+            <span tuiStatus>
+              <button
+                appearance="link"
+                iconStart="@tui.pencil"
+                size="xs"
+                tuiIconButton
+                type="button"
+                (click)="edit(item)"
+              >
+                Edit
+              </button>
+              <button
+                appearance="link"
+                iconStart="@tui.trash"
+                size="xs"
+                tuiIconButton
+                type="button"
+                (click)="remove(item)"
+              >
+                Remove
+              </button>
+              <button
+                appearance="link"
+                iconStart="@tui.eye"
+                size="xs"
+                tuiIconButton
+                type="button"
+                (click)="view(item)"
+              >
+                View
+              </button>
+            </span>
+        </td>
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <td [colSpan]="columns.length">
+          <tui-table-pagination
+            class="tui-space_top-2"
+            [page]="page()"
+            [size]="pageSize"
+            [total]="totalItems()"
+            (paginationChange)="page.set($event.page)"
+          />
+        </td>
+      </tr>
+      </tfoot>
+    </table>
+  </tui-loader>
+</ng-container>

@@ -5,12 +5,13 @@ import {
   of,
   map,
   EMPTY,
-  catchError,
+  catchError, mergeMap, filter, toArray
 } from 'rxjs';
 import { Router } from '@angular/router';
 import { User } from './models/user';
 import { AuthRequest, AuthResponse } from './models/auth';
 import { environment } from '../../environments/environment';
+import { RequestForApproval } from '../user/models/request-for-approval';
 
 @Injectable({
   providedIn: 'root',
@@ -77,7 +78,7 @@ export class AuthService{
       catchError((res) => of(res)),
       map((res) => {
         switch (res.status) {
-          case 200:
+          case 201:
             this.currentUser = {
               username: request.username,
               token: res.body!.accessToken,
@@ -95,37 +96,39 @@ export class AuthService{
     );
   }
 
+  registerAdmin(request: AuthRequest): Observable<AuthResponse> {
+    const url = `${environment.apiUrl}/auth/register-admin`;
+
+    const registerObservable = this.http.post<AuthResponse>(url, request, {
+      observe: 'response',
+    });
+
+    return registerObservable.pipe(
+      catchError((res) => of(res)),
+      map((res) => {
+        switch (res.status) {
+          case 201:
+            this.currentUser = {
+              username: request.username,
+              token: res.body!.accessToken,
+              accountType: res.body!.role,
+            };
+            break;
+          case 400:
+            throw new Error('User already exists');
+          default:
+            throw new Error('Register error');
+        }
+
+        return res.body!;
+      })
+    );
+  }
+
   logout(): Observable<unknown> {
     localStorage.removeItem(this.#USER_STORAGE_KEY);
 
     return EMPTY;
-  }
-
-  authViaToken(): Observable<boolean> {
-    const user = this.restoreUser();
-
-    if (user == undefined || user.token == undefined) {
-      return of(false);
-    }
-
-    const url = `${environment.apiUrl}/auth/verify-token`;
-    const checkTokenObservable = this.http.get(url, {
-      headers: this.getAuthHeaders(user),
-      responseType: 'text',
-    });
-
-    return checkTokenObservable.pipe(
-      map(() => {
-        this.currentUser = user;
-
-        return true;
-      }),
-      catchError(() => {
-        this.currentUser = null;
-
-        return of(false);
-      })
-    );
   }
 
   requestAdminRights(): Observable<void> {
@@ -154,8 +157,37 @@ export class AuthService{
   redirectAfterAuth(): void {
     void this.router.navigate(['']);
   }
+  getAdminRequestsForApproval$(): Observable<
+    RequestForApproval[]
+  > {
+    const url = `${environment.apiUrl}/admin-request/all`;
 
-  getAuthHeaders(
+    return this.http
+      .get<RequestForApproval[]>(url, {
+        headers: this.getAuthHeaders(),
+      })
+      .pipe(
+        mergeMap((requests) => requests),
+        filter((request) => !request.approved),
+        toArray()
+      );
+  }
+
+  approveAdminRequest$(request: RequestForApproval): Observable<void> {
+    const url = `${environment.apiUrl}/admin-request/${request.id}/approve`;
+
+    return (
+      this.http
+        .post(url, null, {
+          headers: this.getAuthHeaders(),
+          responseType: 'text',
+        })
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        .pipe(map(() => {}))
+    );
+  }
+
+  public getAuthHeaders(
     user: User | null | 'current-user' = 'current-user'
   ): HttpHeaders {
     if (user === 'current-user') {
@@ -170,20 +202,12 @@ export class AuthService{
     return headers;
   }
 
-  /**
-   * Восстановить сохранённые данные пользователя.
-   *
-   * @returns данные пользователя или `null`, если они не были сохранены
-   */
   private restoreUser(): User | null {
     const storedUserCredentials = localStorage.getItem(this.#USER_STORAGE_KEY);
 
     return storedUserCredentials ? JSON.parse(storedUserCredentials) : null;
   }
 
-  /**
-   * Сохранить данные пользователя.
-   */
   private storeUser(): void {
     if (this.#currentUser === null) {
       localStorage.removeItem(this.#USER_STORAGE_KEY);
