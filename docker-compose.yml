@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: is-lab-1-front
+    network_mode: host
