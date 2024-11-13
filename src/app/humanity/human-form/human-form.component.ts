@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { TuiButton, TuiDialogContext, TuiError, TuiLoader, TuiSelect, TuiTextfield } from '@taiga-ui/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TUI_VALIDATION_ERRORS, TuiFieldErrorPipe } from '@taiga-ui/kit';
+import { TUI_VALIDATION_ERRORS, TuiCheckbox, TuiFieldErrorPipe } from '@taiga-ui/kit';
 import { AsyncPipe } from '@angular/common';
 import { HumanityService } from '../humanity.service';
 import { ActionWithHumans, Coordinates, Human, Mood, WeaponType } from '../models/human';
@@ -27,7 +27,8 @@ export type HumanFormDialogContext = {
     AsyncPipe,
     TuiInputDateModule,
     TuiError,
-    TuiSelectModule
+    TuiSelectModule,
+    TuiCheckbox
   ],
   providers: [
     {

@@ -6,14 +6,14 @@
   <form [formGroup]="humanForm!" class="main-form">
     @if (context.data.mode === 'read') {
       <tui-textfield class="tui-form__row">
-        <label tuiLabel>ID</label>
-        <input tuiTextfield formControlName="id" [readOnly]="true" />
+        <label for="id" tuiLabel>ID</label>
+        <input id="id" tuiTextfield formControlName="id" [readOnly]="true" />
       </tui-textfield>
     }
 
     <tui-textfield class="tui-form__row">
-      <label tuiLabel>Name</label>
-      <input tuiTextfield formControlName="name" />
+      <label for="name" tuiLabel>Name</label>
+      <input id="name" tuiTextfield formControlName="name" />
     </tui-textfield>
 
     <div formGroupName="coordinates" class="inner-form">
@@ -21,13 +21,13 @@
 
       <div class="tui-form__row tui-form__row_multi-fields">
         <tui-textfield class="tui-form__multi-field">
-          <label tuiLabel>X</label>
-          <input tuiTextfield formControlName="x" />
+          <label for="x" tuiLabel>X</label>
+          <input id="x" tuiTextfield formControlName="x" />
         </tui-textfield>
 
         <tui-textfield class="tui-form__multi-field">
-          <label tuiLabel>Y</label>
-          <input tuiTextfield formControlName="y" />
+          <label for="y" tuiLabel>Y</label>
+          <input id="y" tuiTextfield formControlName="y" />
         </tui-textfield>
       </div>
     </div>
@@ -53,12 +53,12 @@
       <h3 class="tui-form__header">Car</h3>
 
       <tui-textfield class="tui-form__row">
-        <label tuiLabel>Name</label>
-        <input tuiTextfield formControlName="name" />
+        <label for="carName" uiLabel>Name</label>
+        <input id="carName" tuiTextfield formControlName="name" />
       </tui-textfield>
 
-      <label class="checkbox">
-        <input tuiCheckbox type="checkbox" formControlName="cool" />
+      <label for="cool" class="checkbox">
+        <input id="cool" tuiCheckbox type="checkbox" formControlName="cool" />
         <span>Cool Car</span>
       </label>
     </div>
@@ -70,18 +70,18 @@
     </tui-select>
 
     <tui-textfield class="tui-form__row">
-      <label tuiLabel>Impact Speed</label>
-      <input tuiTextfield formControlName="impactSpeed" />
+      <label for="speed" tuiLabel>Impact Speed</label>
+      <input id="speed" tuiTextfield formControlName="impactSpeed" />
     </tui-textfield>
 
     <tui-textfield class="tui-form__row">
-      <label tuiLabel>Soundtrack Name</label>
-      <input tuiTextfield formControlName="soundTrackName" />
+      <label for="sound" tuiLabel>Soundtrack Name</label>
+      <input id="sound" tuiTextfield formControlName="soundTrackName" />
     </tui-textfield>
 
     <tui-textfield class="tui-form__row">
-      <label tuiLabel>Minutes of Waiting</label>
-      <input tuiTextfield formControlName="minutesOfWaiting" />
+      <label for="wait" tuiLabel>Minutes of Waiting</label>
+      <input id="wait" tuiTextfield formControlName="minutesOfWaiting" />
     </tui-textfield>
 
     <tui-select class="tui-form__row" formControlName="weaponType" tuiTextfieldSize="s">
