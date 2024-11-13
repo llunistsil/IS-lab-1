@@ -65,10 +65,6 @@ export class HumanFormComponent {
         cars: this.cars()!.content,
       };
 
-      if (Object.values(dependencies).some((dependency) => !dependency)) {
-        return;
-      }
-
       const human: Human | undefined = this.context.data.item;
 
       this.humanForm = this.fb.group({
