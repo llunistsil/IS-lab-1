@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { TuiButton, TuiDialogContext, TuiError, TuiLoader, TuiSelect, TuiTextfield } from '@taiga-ui/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TUI_VALIDATION_ERRORS, TuiCheckbox, TuiFieldErrorPipe } from '@taiga-ui/kit';
+import { TUI_VALIDATION_ERRORS, TuiCheckbox, TuiFieldErrorPipe, TuiStepper } from '@taiga-ui/kit';
 import { AsyncPipe } from '@angular/common';
 import { HumanityService } from '../humanity.service';
-import { ActionWithHumans, Human, Mood, WeaponType } from '../models/human';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ActionWithHumans, Human } from '../models/human';
 import { injectContext } from '@taiga-ui/polymorpheus';
 import { TuiInputDateModule, TuiSelectModule } from '@taiga-ui/legacy';
+import { Car } from '../models/car';
 
 export type HumanFormDialogContext = {
   mode: ActionWithHumans;
-  item?: Human;
+  item?: any;
 };
 
 @Component({
@@ -28,7 +28,8 @@ export type HumanFormDialogContext = {
     TuiInputDateModule,
     TuiError,
     TuiSelectModule,
-    TuiCheckbox
+    TuiCheckbox,
+    TuiStepper
   ],
   providers: [
     {
@@ -48,15 +49,13 @@ export type HumanFormDialogContext = {
 export class HumanFormComponent {
   protected readonly context = injectContext<TuiDialogContext<void, HumanFormDialogContext>>();
   protected readonly fb = inject(FormBuilder);
-  protected readonly humanService = inject(HumanityService);
+  protected readonly humanityService = inject(HumanityService);
+  protected activeIndex = 0;
 
   humanForm?: FormGroup;
-  isLoading = signal(true);
+  carForm?: FormGroup;
 
-  cars = toSignal(this.humanService.getCarList$({
-    page: 0,
-    size: 100
-  }));
+  isLoading = signal(true);
 
   get isEditable(): boolean {
     return [ActionWithHumans.Update, ActionWithHumans.Create].includes(this.context.data.mode);
@@ -64,38 +63,34 @@ export class HumanFormComponent {
 
   constructor() {
     effect(() => {
-      const dependencies = {
-        cars: this.cars()?.content,
-      };
-
-      const human: Human | undefined = this.context.data.item;
 
       this.humanForm = this.fb.group({
-        id: [human?.id ?? ''],
-        name: [human?.name ?? '', [Validators.required, Validators.minLength(1)]],
-        coordinates: {
-          x: [human?.coordinates.x ?? 0, Validators.required],
-          y: [human?.coordinates.y ?? 0, Validators.required],
-        },
-        creationDate: [human?.creationDate ?? null, Validators.required],
-        realHero: [human?.realHero ?? false],
-        hasToothpick: [human?.hasToothpick ?? false, Validators.required],
-        car: this.fb.group({
-          id: [dependencies.cars ? dependencies.cars[0].id : 0, Validators.required],
-          name: [dependencies.cars ? dependencies.cars[0].name : '', [Validators.required, Validators.minLength(1)]],
-          cool: [dependencies.cars ? dependencies.cars[0].cool : false],
+        name: [this.context.data.item?.name ?? null, [Validators.required, Validators.minLength(1)]],
+        coordinates:  this.fb.group({
+          x: [this.context.data.item?.coordinates.x ?? null, Validators.required],
+          y: [this.context.data.item?.coordinates.y ?? null, Validators.required],
         }),
-        mood: [human?.mood ?? Mood.APATHY, Validators.required],
-        impactSpeed: [human?.impactSpeed ?? 0, Validators.min(0)],
-        soundTrackName: [human?.soundTrackName ?? '', Validators.required],
-        minutesOfWaiting: [human?.minutesOfWaiting ?? 0, Validators.required],
-        weaponType: [human?.weaponType ?? WeaponType.AXE, Validators.required],
+        creationDate: [this.context.data.item?.creation_date ?? null, Validators.required],
+        realHero: [this.context.data.item?.real_hero ?? false],
+        hasToothpick: [this.context.data.item?.has_toothpick ?? false, Validators.required],
+        mood: [this.context.data.item?.mood ?? null, Validators.required],
+        impactSpeed: [this.context.data.item?.impact_speed ?? null, Validators.min(0)],
+        soundTrackName: [this.context.data.item?.soundtrack_name ?? null, Validators.required],
+        minutesOfWaiting: [this.context.data.item?.minutes_of_waiting ?? null, Validators.required],
+        weaponType: [this.context.data.item?.weapon_type ?? null, Validators.required],
+      });
+
+      this.carForm = this.fb.group({
+        name: [this.context.data.item?.car?.name ?? null, [Validators.required, Validators.minLength(1)]],
+        cool: [this.context.data.item?.car?.cool ?? false],
       });
 
       if (this.context.data.mode === ActionWithHumans.Read) {
         this.humanForm.disable();
+        this.carForm.disable();
       } else {
         this.humanForm.markAllAsTouched();
+        this.carForm.markAllAsTouched();
       }
 
       this.isLoading.set(false);
@@ -111,21 +106,34 @@ export class HumanFormComponent {
         y: formValues.coordinates.y,
       },
       creationDate: new Date(formValues.creationDate),
-      car: {
-        id: formValues.car.id,
-        name: formValues.car.name,
-        cool: formValues.car.cool,
-      },
     };
 
     switch (this.context.data.mode) {
       case ActionWithHumans.Create:
-        this.humanService.createHuman$(human).subscribe({
+        this.humanityService.createHuman$(human).subscribe({
           complete: () => this.context.completeWith(),
         });
         break;
       case ActionWithHumans.Update:
-        this.humanService.updateHuman$(human).subscribe({
+        this.humanityService.updateHuman$(human).subscribe({
+          complete: () => this.context.completeWith(),
+        });
+        break;
+    }
+  }
+
+  saveCar(): void {
+    const formValues = this.carForm!.value;
+    const car: Car = { ...formValues };
+
+    switch (this.context.data.mode) {
+      case ActionWithHumans.Create:
+        this.humanityService.createCar$(car).subscribe({
+          complete: () => this.context.completeWith(),
+        });
+        break;
+      case ActionWithHumans.Update:
+        this.humanityService.updateCar$(car).subscribe({
           complete: () => this.context.completeWith(),
         });
         break;

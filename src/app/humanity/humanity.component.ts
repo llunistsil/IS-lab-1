@@ -1,19 +1,16 @@
 import { Component, DestroyRef, effect, inject, INJECTOR, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { KnownRoutePath } from '../known-route-path';
 import { TuiButton, TuiDialogService, TuiLink, TuiLoader, TuiTextfield } from '@taiga-ui/core';
 import { RouterLink } from '@angular/router';
 import { TuiAccordion, TuiStatus } from '@taiga-ui/kit';
 import { TuiTable, TuiTableFilters, TuiTablePagination } from '@taiga-ui/addon-table';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ActionWithHumans, Coordinates, Human, Mood, WeaponType } from './models/human';
-import { Car } from './models/car';
+import { ActionWithHumans, Human } from './models/human';
 import { HumanityService } from './humanity.service';
-import { AuthService } from '../auth/auth.service';
 import { TuiLet, tuiTakeUntilDestroyed } from '@taiga-ui/cdk';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { HumanFormComponent, HumanFormDialogContext } from './human-form/human-form.component';
-import { interval, merge, switchMap } from 'rxjs';
+import { switchMap, timer } from 'rxjs';
 
 @Component({
   selector: 'app-humanity',
@@ -32,10 +29,9 @@ export class HumanityComponent {
   readonly filterableColumns = [
     'id',
     'name',
-    'coordinates',
-    'impactSpeed',
-    'soundTrackName',
-    'minutesOfWaiting',
+    'impact_speed',
+    'soundtrack_name',
+    'minutes_of_waiting',
   ] as const;
   readonly filtersForm = new FormGroup<
     Partial<Record<keyof Human, FormControl>>
@@ -58,31 +54,25 @@ export class HumanityComponent {
   readonly humanColumns = [
     'id',
     'name',
-    'coordinates',
-    'creationDate',
-    'realHero',
-    'hasToothpick',
-    'car',
+    'real_hero',
+    'has_toothpick',
     'mood',
-    'impactSpeed',
-    'soundTrackName',
-    'minutesOfWaiting',
-    'weaponType',
+    'impact_speed',
+    'soundtrack_name',
+    'minutes_of_waiting',
+    'weapon_type',
   ] as const;
   readonly columns = [...this.humanColumns, 'actions'] as const;
   readonly columnNames = {
     id: 'ID',
     name: 'Name',
-    coordinates: 'Coordinates',
-    creationDate: 'Creation Date',
-    car: 'Car',
-    realHero: 'Real Hero',
-    hasToothpick: 'Has Toothpick',
+    real_hero: 'Real Hero',
+    has_toothpick: 'Has Toothpick',
     mood: 'Mood',
-    impactSpeed: 'Impact Speed',
-    soundTrackName: 'Sound Track Name',
-    minutesOfWaiting: 'Minutes Of Waiting',
-    weaponType: 'Weapon Type',
+    impact_speed: 'Impact Speed',
+    soundtrack_name: 'Sound Track Name',
+    minutes_of_waiting: 'Minutes Of Waiting',
+    weapon_type: 'Weapon Type',
     actions: 'Actions',
   };
   readonly actionWithHumans = ActionWithHumans;
@@ -100,7 +90,7 @@ export class HumanityComponent {
         this.isLoading.set(true);
 
         const getHumanListSubscription =
-          interval(5000)
+          timer(0,5000)
           .pipe(
             switchMap(() =>
               this.humanityService.getHumanList$({
@@ -112,6 +102,7 @@ export class HumanityComponent {
           )
           .subscribe((response) => {
             this.data.set(response.content);
+            console.log(this.data())
             this.totalItems.set(response.totalElements);
             this.isLoading.set(false);
           });
@@ -124,9 +115,9 @@ export class HumanityComponent {
     );
   }
 
-  edit(item: Human): void {
+  edit(item: any): void {
     this.dialogService
-      .open<{ item: Human; mode: ActionWithHumans }>(
+      .open<{ item: any; mode: ActionWithHumans }>(
         new PolymorpheusComponent(HumanFormComponent, this.injector),
         {
           data: {

@@ -1,7 +1,7 @@
-import { TuiButton, TuiDialogService, TuiIcon, TuiRoot } from '@taiga-ui/core';
+import { TuiButton, TuiDialogService, TuiIcon, TuiLink, TuiRoot, TuiTitle } from '@taiga-ui/core';
 import { Component, DestroyRef, inject, INJECTOR } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { TuiNavigation } from '@taiga-ui/layout';
+import { Router, RouterModule } from '@angular/router';
+import { TuiHeader, TuiNavigation } from '@taiga-ui/layout';
 import { TuiAvatar, TuiFade } from '@taiga-ui/kit';
 import { AuthService } from './auth/auth.service';
 import { KnownRoutePath } from './known-route-path';
@@ -12,7 +12,7 @@ import { HumanFormComponent } from './humanity/human-form/human-form.component';
 
 @Component({
   standalone: true,
-  imports: [RouterModule, TuiRoot, TuiIcon, TuiNavigation, TuiButton, TuiFade, TuiAvatar],
+  imports: [RouterModule, TuiRoot, TuiIcon, TuiNavigation, TuiButton, TuiFade, TuiAvatar, TuiHeader, TuiTitle, TuiLink],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.less'
@@ -21,6 +21,7 @@ export class AppComponent {
   protected readonly dialogService = inject(TuiDialogService);
   protected authService = inject(AuthService);
   protected readonly destroyRef = inject(DestroyRef);
+  protected readonly router = inject(Router);
   protected readonly injector = inject(INJECTOR);
   protected readonly KnownRoutePath = KnownRoutePath;
 
@@ -33,7 +34,7 @@ export class AppComponent {
 
   createNewHuman(): void {
     this.dialogService
-      .open<{ mode: ActionWithHumans }>(
+      .open<{ mode: ActionWithHumans.Create }>(
         new PolymorpheusComponent(HumanFormComponent, this.injector),
         {
           data: {
@@ -46,4 +47,6 @@ export class AppComponent {
       .pipe(tuiTakeUntilDestroyed(this.destroyRef))
       .subscribe();
   }
+
+
 }

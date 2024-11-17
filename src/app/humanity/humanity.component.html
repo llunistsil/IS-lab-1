@@ -1,5 +1,5 @@
 <ng-container tuiTableFilters>
-  <tui-accordion-item class="filters__accordion">
+  <tui-accordion-item class="tui-container">
     Filters
     <ng-template tuiAccordionItemContent>
       <form [formGroup]="filtersForm" class="filters__form">
@@ -23,7 +23,7 @@
     [showLoader]="isLoading()"
     class="table-container"
   >
-    <table tuiTable class="table" [columns]="columns">
+    <table tuiTable class="tui-space_auto" [columns]="columns">
       <thead>
       <tr tuiThGroup>
         @for (column of columns; track column) {

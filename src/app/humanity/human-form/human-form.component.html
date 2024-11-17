@@ -3,102 +3,143 @@
     <tui-loader></tui-loader>
   </div>
 } @else {
-  <form [formGroup]="humanForm!" class="main-form">
-    @if (context.data.mode === 'read') {
+  <tui-stepper [activeItemIndex]="this.activeIndex">
+    <button
+      stepState="pass"
+      tuiStep
+      type="button"
+      disabled
+    >
+      Human
+    </button>
+    <button
+      disabled
+      tuiStep
+      type="button"
+    >
+      Car
+    </button>
+  </tui-stepper>
+  @if (activeIndex === 0) {
+    <form [formGroup]="humanForm!" class="main-form">
       <tui-textfield class="tui-form__row">
-        <label for="id" tuiLabel>ID</label>
-        <input id="id" tuiTextfield formControlName="id" [readOnly]="true" />
+        <label for="name" tuiLabel>Name</label>
+        <input id="name" tuiTextfield formControlName="name" />
       </tui-textfield>
-    }
 
-    <tui-textfield class="tui-form__row">
-      <label for="name" tuiLabel>Name</label>
-      <input id="name" tuiTextfield formControlName="name" />
-    </tui-textfield>
+      <div formGroupName="coordinates" class="inner-form">
+        <h3 class="tui-form__header">Coordinates</h3>
 
-    <div formGroupName="coordinates" class="inner-form">
-      <h3 class="tui-form__header">Coordinates</h3>
+        <div class="tui-form__row tui-form__row_multi-fields">
+          <tui-textfield class="tui-form__multi-field">
+            <label for="x" tuiLabel>X</label>
+            <input id="x" tuiTextfield formControlName="x" />
+          </tui-textfield>
 
-      <div class="tui-form__row tui-form__row_multi-fields">
-        <tui-textfield class="tui-form__multi-field">
-          <label for="x" tuiLabel>X</label>
-          <input id="x" tuiTextfield formControlName="x" />
-        </tui-textfield>
-
-        <tui-textfield class="tui-form__multi-field">
-          <label for="y" tuiLabel>Y</label>
-          <input id="y" tuiTextfield formControlName="y" />
-        </tui-textfield>
+          <tui-textfield class="tui-form__multi-field">
+            <label for="y" tuiLabel>Y</label>
+            <input id="y" tuiTextfield formControlName="y" />
+          </tui-textfield>
+        </div>
       </div>
-    </div>
 
-    @if (context.data.mode === 'read') {
-      <tui-input-date formControlName="creationDate" class="tui-form__row" [readOnly]="true">
-        Creation Date
-        <input placeholder="Placeholder" tuiTextfieldLegacy [readOnly]="true" />
-      </tui-input-date>
-    }
+      @if (context.data.mode === 'read') {
+        <tui-input-date formControlName="creationDate" class="tui-form__row" [readOnly]="true">
+          Creation Date
+          <input placeholder="Placeholder" tuiTextfieldLegacy [readOnly]="true" />
+        </tui-input-date>
+      }
 
-    <label class="checkbox">
-      <input tuiCheckbox type="checkbox" formControlName="realHero" />
-      <span>Real Hero</span>
-    </label>
+      <label class="checkbox">
+        <input tuiCheckbox type="checkbox" formControlName="realHero" />
+        <span>Real Hero</span>
+      </label>
 
-    <label class="checkbox">
-      <input tuiCheckbox type="checkbox" formControlName="hasToothpick" />
-      <span>Has Toothpick</span>
-    </label>
+      <label class="checkbox">
+        <input tuiCheckbox type="checkbox" formControlName="hasToothpick" />
+        <span>Has Toothpick</span>
+      </label>
 
-    <div formGroupName="car" class="inner-form">
+      <tui-select class="tui-form__row" formControlName="mood" tuiTextfieldSize="s">
+        Mood
+        <input tuiTextfieldLegacy placeholder="Mood" />
+        <tui-data-list-wrapper *tuiDataList [items]="['SORROW', 'LONGING', 'APATHY', 'CALM', 'RAGE']" />
+      </tui-select>
+
+      <tui-textfield class="tui-form__row">
+        <label for="speed" tuiLabel>Impact Speed</label>
+        <input id="speed" tuiTextfield formControlName="impactSpeed" />
+      </tui-textfield>
+
+      <tui-textfield class="tui-form__row">
+        <label for="sound" tuiLabel>Soundtrack Name</label>
+        <input id="sound" tuiTextfield formControlName="soundTrackName" />
+      </tui-textfield>
+
+      <tui-textfield class="tui-form__row">
+        <label for="wait" tuiLabel>Minutes of Waiting</label>
+        <input id="wait" tuiTextfield formControlName="minutesOfWaiting" />
+      </tui-textfield>
+
+      <tui-select class="tui-form__row" formControlName="weaponType" tuiTextfieldSize="s">
+        Weapon Type
+        <input tuiTextfieldLegacy placeholder="Weapon Type" />
+        <tui-data-list-wrapper *tuiDataList [items]="['HAMMER', 'AXE', 'SHOTGUN', 'MACHINE_GUN', 'BAT']" />
+      </tui-select>
+
+      <label class="checkbox">
+        <input tuiCheckbox type="checkbox" formControlName="realHero" />
+        <span>Real Hero</span>
+      </label>
+      <div class="tui-form__buttons">
+        @if (isEditable && humanForm?.valid) {
+          <button size="l" tuiButton type="submit" class="tui-form__button" (click)="save()">
+            Create
+          </button>
+          <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="activeIndex=1">
+            Go To Car
+          </button>
+        } @else if (context.data.mode === 'read') {
+          <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="activeIndex=1">
+            Go To Car
+          </button>
+        }
+      </div>
+    </form>
+  } @else if (activeIndex === 1) {
+    <form [formGroup]="carForm!" class="main-form">
       <h3 class="tui-form__header">Car</h3>
 
-      <tui-textfield class="tui-form__row">
-        <label for="carName" tuiLabel>Name</label>
-        <input id="carName" tuiTextfield formControlName="name" />
-      </tui-textfield>
+      @if (isEditable || (context.data.mode === 'read' && context.data.item?.car?.id)) {
+        <tui-textfield class="tui-form__row">
+          <label for="carName" tuiLabel>Name</label>
+          <input id="carName" tuiTextfield formControlName="name" />
+        </tui-textfield>
 
-      <label for="cool" class="checkbox">
-        <input id="cool" tuiCheckbox type="checkbox" formControlName="cool" />
-        <span>Cool Car</span>
-      </label>
-    </div>
-
-    <tui-select class="tui-form__row" formControlName="mood" tuiTextfieldSize="s">
-      Mood
-      <input tuiTextfieldLegacy placeholder="Mood" />
-      <tui-data-list-wrapper *tuiDataList [items]="['SORROW', 'LONGING', 'APATHY', 'CALM', 'RAGE']" />
-    </tui-select>
-
-    <tui-textfield class="tui-form__row">
-      <label for="speed" tuiLabel>Impact Speed</label>
-      <input id="speed" tuiTextfield formControlName="impactSpeed" />
-    </tui-textfield>
-
-    <tui-textfield class="tui-form__row">
-      <label for="sound" tuiLabel>Soundtrack Name</label>
-      <input id="sound" tuiTextfield formControlName="soundTrackName" />
-    </tui-textfield>
-
-    <tui-textfield class="tui-form__row">
-      <label for="wait" tuiLabel>Minutes of Waiting</label>
-      <input id="wait" tuiTextfield formControlName="minutesOfWaiting" />
-    </tui-textfield>
-
-    <tui-select class="tui-form__row" formControlName="weaponType" tuiTextfieldSize="s">
-      Weapon Type
-      <input tuiTextfieldLegacy placeholder="Weapon Type" />
-      <tui-data-list-wrapper *tuiDataList [items]="['HAMMER', 'AXE', 'SHOTGUN', 'MACHINE_GUN', 'BAT']" />
-    </tui-select>
-
-    <div class="tui-form__buttons">
-      @if (isEditable) {
-        <button size="l" tuiButton type="submit" class="tui-form__button" [disabled]="!humanForm?.valid" (click)="save()">
-          Submit
-        </button>
-        <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="cancel()">
-          Cancel
-        </button>
+        <label for="cool" class="checkbox">
+          <input id="cool" tuiCheckbox type="checkbox" formControlName="cool" />
+          <span>Cool Car</span>
+        </label>
+      } @else {
+        <h6 class="tui-form__field-note">
+          There is not car(((
+        </h6>
       }
-    </div>
-  </form>
+      <div class="tui-form__buttons">
+        @if (isEditable) {
+          <button size="l" tuiButton type="submit" class="tui-form__button" [disabled]="!carForm?.valid"
+                  (click)="saveCar()">
+            Add
+          </button>
+          <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="activeIndex=0">
+            Go To Human
+          </button>
+        } @else if (context.data.mode === 'read') {
+          <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="activeIndex=0">
+            Go To Human
+          </button>
+        }
+      </div>
+    </form>
+  }
 }

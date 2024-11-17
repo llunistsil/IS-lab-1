@@ -31,7 +31,7 @@ export interface Human {
   creationDate: Date;
   realHero?: boolean;
   hasToothpick: boolean;
-  car: Car;
+  car?: Car;
   mood: Mood;
   impactSpeed?: number;
   soundTrackName: string;

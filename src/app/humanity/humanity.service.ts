@@ -45,7 +45,18 @@ export class HumanityService {
   createHuman$(human: Human): Observable<void> {
     return this.http.post<void>(
       `${ environment.apiUrl }/human-being/create`,
-      human,
+      {
+        name: human.name,
+        coordinates: human.coordinates,
+        car: human.car,
+        real_hero: human.realHero,
+        has_toothpick: human.hasToothpick,
+        mood: human.mood,
+        impact_speed: human.impactSpeed,
+        soundtrack_name: human.soundTrackName,
+        minutes_of_waiting: human.minutesOfWaiting,
+        weapon_type: human.weaponType
+      },
       {
         headers: this.authService.getAuthHeaders()
       }
@@ -62,7 +73,7 @@ export class HumanityService {
   }
 
   updateHuman$(human: Human): Observable<void> {
-    return this.http.patch<void>(
+    return this.http.put<void>(
       `${ environment.apiUrl }/human-being/${ human.id }`,
       human,
       { headers: this.authService.getAuthHeaders() }
@@ -73,7 +84,7 @@ export class HumanityService {
     const requestBody = {
       car_id: car.id,
       human_id: human.id
-    }
+    };
     return this.http.patch<void>(
       `${ environment.apiUrl }/human-being/attach-car`,
       requestBody,
@@ -101,7 +112,7 @@ export class HumanityService {
   }
 
   updateCar$(car: Car): Observable<void> {
-    return this.http.patch<void>(
+    return this.http.put<void>(
       `${ environment.apiUrl }/car/${ car.id }`,
       car,
       { headers: this.authService.getAuthHeaders() }
