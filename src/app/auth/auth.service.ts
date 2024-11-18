@@ -85,7 +85,7 @@ export class AuthService{
               accountType: res.body!.role,
             };
             break;
-          case 409:
+          case 403:
             throw new Error('User already exists');
           default:
             throw new Error('Register error');
@@ -107,18 +107,20 @@ export class AuthService{
       catchError((res) => of(res)),
       map((res) => {
         switch (res.status) {
-          case 201:
+          case 200:
             this.currentUser = {
               username: request.username,
               token: res.body!.accessToken,
               accountType: res.body!.role,
             };
             break;
-          case 400:
+          case 403:
             throw new Error('User already exists');
           default:
             throw new Error('Register error');
         }
+
+        console.log(res.body)
 
         return res.body!;
       })
@@ -129,29 +131,6 @@ export class AuthService{
     localStorage.removeItem(this.#USER_STORAGE_KEY);
 
     return EMPTY;
-  }
-
-  requestAdminRights(): Observable<void> {
-    const url = `${environment.apiUrl}/admin/registration-requests`;
-
-    return this.http
-      .post(url, null, {
-        headers: this.getAuthHeaders(this.currentUser),
-        observe: 'response',
-      })
-      .pipe(
-        catchError((res) => of(res)),
-        map((res) => {
-          switch (res.status) {
-            case 201:
-              return;
-            case 400:
-              throw new Error('Request already exists');
-            default:
-              throw new Error('Unknown error');
-          }
-        })
-      );
   }
 
   redirectAfterAuth(): void {

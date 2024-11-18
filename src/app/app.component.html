@@ -6,14 +6,17 @@
     </span>
     <hr />
     @if (authService.currentUser?.username) {
-      <a
-        iconStart="@tui.book-user"
-        tuiIconButton
-        type="button"
-        [routerLink]="[KnownRoutePath.User,KnownRoutePath.AdminPanel]"
-      >
-        Settings
-      </a>
+      @if (authService.currentUser?.accountType === AccountType.Admin) {
+        <a
+          iconStart="@tui.book-user"
+          tuiIconButton
+          type="button"
+          [routerLink]="[KnownRoutePath.User,KnownRoutePath.AdminPanel]"
+        >
+          Settings
+        </a>
+      }
+
       <tui-avatar [src]="authService.currentUser!.username.slice(0, 2)" [round]="false" [style.background-color]="'var(--tui-background-neutral-2)'"/>
       <button
         iconStart="@tui.log-out"

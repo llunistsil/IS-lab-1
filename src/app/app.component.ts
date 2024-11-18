@@ -6,6 +6,7 @@ import { TuiAvatar, TuiFade } from '@taiga-ui/kit';
 import { AuthService } from './auth/auth.service';
 import { KnownRoutePath } from './known-route-path';
 import { tuiTakeUntilDestroyed } from '@taiga-ui/cdk';
+import { AccountType } from './auth/models/user';
 
 @Component({
   standalone: true,
@@ -28,4 +29,6 @@ export class AppComponent {
       )
       .subscribe();
   };
+
+  protected readonly AccountType = AccountType;
 }

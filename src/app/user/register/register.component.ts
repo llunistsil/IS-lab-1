@@ -23,7 +23,6 @@ import {
 } from '@taiga-ui/core';
 import { TuiCheckbox, TuiPassword } from '@taiga-ui/kit';
 import { TuiCardLarge } from '@taiga-ui/layout';
-import { catchError } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { KnownRoutePath } from '../../known-route-path';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -95,28 +94,7 @@ export class RegisterComponent implements OnInit {
 
     registerByRole
       .subscribe({
-        complete: () => {
-          const hasAdminRequest = this.registrationForm.get('isAdmin')!.value;
-
-          if (!hasAdminRequest) {
-            this.authService.redirectAfterAuth();
-            return;
-          }
-
-          this.authService
-            .requestAdminRights()
-            .pipe(
-              catchError((err: Error) => {
-                return this.alertService
-                  .open(err.message, { appearance: 'error' })
-                  .pipe(takeUntilDestroyed(this.destroyRef));
-              }),
-              takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe({
-              complete: () => this.authService.redirectAfterAuth(),
-            });
-        },
+        complete: () => this.authService.redirectAfterAuth(),
         error: (err: HttpErrorResponse) => {
           this.alertService
             .open(err.message, { appearance: 'error' })
