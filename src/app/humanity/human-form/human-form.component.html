@@ -139,9 +139,11 @@
                   (click)="saveCar()">
             Submit
           </button>
+          @if (context.data.mode !== 'create') {
           <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="activeIndex=0">
             Go To Human
           </button>
+          }
         } @else if (context.data.mode === 'read') {
           <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="activeIndex=0">
             Go To Human

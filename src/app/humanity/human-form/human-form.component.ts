@@ -16,7 +16,7 @@ import { ActionWithHumans, Human } from '../models/human';
 import { injectContext } from '@taiga-ui/polymorpheus';
 import { TuiInputDateModule, TuiSelectModule } from '@taiga-ui/legacy';
 import { Car } from '../models/car';
-import { catchError, switchMap } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export type HumanFormDialogContext = {
@@ -136,15 +136,14 @@ export class HumanFormComponent {
                 }
                 return this.humanityService.disAccessAdmin$(this.humanId);
               }),
+            tap(() => this.activeIndex = 1),
             catchError((err: Error) => {
               return this.alertService
-                .open(err.message, { appearance: 'error' })
+                .open(err.name, { appearance: 'error' })
                 .pipe(takeUntilDestroyed(this.destroyRef));
             }),
           )
-          .subscribe(
-            () => this.activeIndex = 1
-          );
+          .subscribe();
         break;
       case ActionWithHumans.Update:
         human.id = this.context.data.item?.id as number;
@@ -164,27 +163,23 @@ export class HumanFormComponent {
     const formValues = this.carForm!.value;
     const car: Car = { ...formValues };
 
-    if (!this.context.data.item.car.id) {
+    if (!this.context.data.item?.car) {
       this.context.data.mode = ActionWithHumans.Create;
+    } else {
+      car.id = this.context.data.item.car.id;
     }
 
-    car.id = this.context.data.item.car.id;
+
 
     switch (this.context.data.mode) {
       case ActionWithHumans.Create:
         this.humanityService.createCar$(car).pipe(
+          tap(() => this.context.completeWith()),
           switchMap(res => {
             return this.humanityService.attachCar$(this.humanId, res.id);
           }),
-          catchError((err: Error) => {
-            return this.alertService
-              .open(err.message, { appearance: 'error' })
-              .pipe(takeUntilDestroyed(this.destroyRef));
-          })
         )
-          .subscribe(
-            () => this.context.completeWith()
-          );
+          .subscribe();
         break;
       case ActionWithHumans.Update:
         this.humanityService.updateCar$(car).subscribe();
