@@ -142,7 +142,9 @@ export class HumanFormComponent {
                 .pipe(takeUntilDestroyed(this.destroyRef));
             }),
           )
-          .subscribe();
+          .subscribe(
+            () => this.activeIndex = 1
+          );
         break;
       case ActionWithHumans.Update:
         human.id = this.context.data.item?.id as number;
@@ -180,7 +182,9 @@ export class HumanFormComponent {
               .pipe(takeUntilDestroyed(this.destroyRef));
           })
         )
-          .subscribe();
+          .subscribe(
+            () => this.context.completeWith()
+          );
         break;
       case ActionWithHumans.Update:
         this.humanityService.updateCar$(car).subscribe();
