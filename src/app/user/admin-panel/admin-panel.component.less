@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.request-item {
+  display: flex;
+  justify-content: space-between;
+
+  &:not(:last-child) {
+    border-bottom: 2px solid var(--tui-border-normal);
+    padding-bottom: 10px;
+  }
+}

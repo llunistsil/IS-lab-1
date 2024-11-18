@@ -96,3 +96,97 @@
     </table>
   </tui-loader>
 </ng-container>
+<div class="create">
+  <button
+    iconStart="@tui.menu"
+    appearance="primary-grayscale"
+    [style.border-radius.%]="100"
+    tuiIconButton
+    tuiDropdownAlign="left"
+    type="button"
+    [tuiAppearanceState]="open ? 'active' : null"
+    [tuiDropdown]="dropdown"
+    [tuiDropdownSided]="true"
+    [(tuiDropdownOpen)]="open"
+  >
+    Menu
+  </button>
+  <button
+    iconStart="@tui.plus"
+    tuiIconButton
+    type="button"
+    (click)="createNewHuman()"
+    appearance="primary-grayscale"
+    [style.border-radius.%]="100"
+  >
+    Create new human
+  </button>
+</div>
+<ng-template
+  #dropdown
+  let-close
+>
+  <tui-data-list>
+    <tui-opt-group>
+      <button
+        *ngFor="let item of specialActions"
+        tuiOption
+        type="button"
+        (click)="onMenuClick(item)"
+      >
+        {{ item }}
+      </button>
+    </tui-opt-group>
+  </tui-data-list>
+</ng-template>
+
+<ng-template
+  let-observer
+  [tuiDialogOptions]="{label: 'Declarative directive', size: 's'}"
+  [(tuiDialog)]="openWeapon"
+>
+  <form
+    [formGroup]="weaponForm"
+    (ngSubmit)="observer.complete()"
+  >
+    <tui-select class="tui-form__row" formControlName="weaponType" tuiTextfieldSize="s">
+      Weapon Type
+      <input tuiTextfieldLegacy placeholder="Weapon Type" />
+      <tui-data-list-wrapper *tuiDataList [items]="['HAMMER', 'AXE', 'SHOTGUN', 'MACHINE_GUN', 'BAT']" />
+    </tui-select>
+    <p>
+      <button
+        tuiButton
+        type="submit"
+        (click)="this.humanityService.deleteByWeaponType$(this.weaponForm.value.weaponType).subscribe()"
+      >
+        Delete
+      </button>
+    </p>
+  </form>
+</ng-template>
+
+<ng-template
+  let-observer
+  [tuiDialogOptions]="{label: 'Get the number of objects whose minutesOfWaiting field value is less than a given one', size: 's'}"
+  [(tuiDialog)]="openMinutesOfWaiting"
+>
+  <form
+    [formGroup]="minutesOfWaitingFrom"
+    (ngSubmit)="observer.complete()"
+  >
+    <tui-textfield class="tui-form__row">
+      <label for="wait" tuiLabel>Minutes of Waiting</label>
+      <input id="wait" tuiTextfield formControlName="minutesOfWaiting" />
+    </tui-textfield>
+    <p>
+      <button
+        tuiButton
+        type="submit"
+        (click)="this.showCountMinutes()"
+      >
+        Get
+      </button>
+    </p>
+  </form>
+</ng-template>

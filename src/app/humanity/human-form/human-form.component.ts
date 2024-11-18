@@ -1,6 +1,14 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
-import { TuiButton, TuiDialogContext, TuiError, TuiLoader, TuiSelect, TuiTextfield } from '@taiga-ui/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import {
+  TuiAlertService,
+  TuiButton,
+  TuiDialogContext,
+  TuiError,
+  TuiLoader,
+  TuiSelect,
+  TuiTextfield
+} from '@taiga-ui/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TUI_VALIDATION_ERRORS, TuiCheckbox, TuiFieldErrorPipe, TuiStepper } from '@taiga-ui/kit';
 import { AsyncPipe } from '@angular/common';
 import { HumanityService } from '../humanity.service';
@@ -8,6 +16,8 @@ import { ActionWithHumans, Human } from '../models/human';
 import { injectContext } from '@taiga-ui/polymorpheus';
 import { TuiInputDateModule, TuiSelectModule } from '@taiga-ui/legacy';
 import { Car } from '../models/car';
+import { catchError, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export type HumanFormDialogContext = {
   mode: ActionWithHumans;
@@ -29,28 +39,33 @@ export type HumanFormDialogContext = {
     TuiError,
     TuiSelectModule,
     TuiCheckbox,
-    TuiStepper
+    TuiStepper,
+    FormsModule
   ],
   providers: [
     {
       provide: TUI_VALIDATION_ERRORS,
       useValue: {
         minlength: ({ requiredLength }: { requiredLength: string }): string =>
-          `At least ${requiredLength} characters`,
+          `At least ${ requiredLength } characters`,
         required: 'Required',
-        min: 'Should be greater than zero',
-      },
-    },
+        min: 'Should be greater than zero'
+      }
+    }
   ],
   templateUrl: './human-form.component.html',
   styleUrls: ['./human-form.component.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HumanFormComponent {
   protected readonly context = injectContext<TuiDialogContext<void, HumanFormDialogContext>>();
   protected readonly fb = inject(FormBuilder);
   protected readonly humanityService = inject(HumanityService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly alertService = inject(TuiAlertService);
   protected activeIndex = 0;
+  public accessAdmin = false;
+  private humanId!: number;
 
   humanForm?: FormGroup;
   carForm?: FormGroup;
@@ -63,26 +78,26 @@ export class HumanFormComponent {
 
   constructor() {
     effect(() => {
+      this.humanId = this.context.data.item?.id;
 
       this.humanForm = this.fb.group({
         name: [this.context.data.item?.name ?? null, [Validators.required, Validators.minLength(1)]],
-        coordinates:  this.fb.group({
+        coordinates: this.fb.group({
           x: [this.context.data.item?.coordinates.x ?? null, Validators.required],
-          y: [this.context.data.item?.coordinates.y ?? null, Validators.required],
+          y: [this.context.data.item?.coordinates.y ?? null, Validators.required]
         }),
-        creationDate: [this.context.data.item?.creation_date ?? null, Validators.required],
         realHero: [this.context.data.item?.real_hero ?? false],
         hasToothpick: [this.context.data.item?.has_toothpick ?? false, Validators.required],
         mood: [this.context.data.item?.mood ?? null, Validators.required],
         impactSpeed: [this.context.data.item?.impact_speed ?? null, Validators.min(0)],
         soundTrackName: [this.context.data.item?.soundtrack_name ?? null, Validators.required],
         minutesOfWaiting: [this.context.data.item?.minutes_of_waiting ?? null, Validators.required],
-        weaponType: [this.context.data.item?.weapon_type ?? null, Validators.required],
+        weaponType: [this.context.data.item?.weapon_type ?? null, Validators.required]
       });
 
       this.carForm = this.fb.group({
         name: [this.context.data.item?.car?.name ?? null, [Validators.required, Validators.minLength(1)]],
-        cool: [this.context.data.item?.car?.cool ?? false],
+        cool: [this.context.data.item?.car?.cool ?? false]
       });
 
       if (this.context.data.mode === ActionWithHumans.Read) {
@@ -103,21 +118,42 @@ export class HumanFormComponent {
       ...formValues,
       coordinates: {
         x: formValues.coordinates.x,
-        y: formValues.coordinates.y,
+        y: formValues.coordinates.y
       },
-      creationDate: new Date(formValues.creationDate),
+      creationDate: new Date(formValues.creationDate)
     };
 
     switch (this.context.data.mode) {
       case ActionWithHumans.Create:
-        this.humanityService.createHuman$(human).subscribe({
-          complete: () => this.context.completeWith(),
-        });
+        this.humanityService.createHuman$(human)
+          .pipe(
+            switchMap(
+              (response) => {
+                this.humanId = response.id;
+                console.log(this.accessAdmin)
+                if (this.accessAdmin) {
+                  return this.humanityService.accessAdmin$(this.humanId);
+                }
+                return this.humanityService.disAccessAdmin$(this.humanId);
+              }),
+            catchError((err: Error) => {
+              return this.alertService
+                .open(err.message, { appearance: 'error' })
+                .pipe(takeUntilDestroyed(this.destroyRef));
+            }),
+          )
+          .subscribe();
         break;
       case ActionWithHumans.Update:
-        this.humanityService.updateHuman$(human).subscribe({
-          complete: () => this.context.completeWith(),
-        });
+        human.id = this.context.data.item?.id as number;
+        this.humanityService.updateHuman$(human)
+          .pipe(
+            catchError(() => {
+              return this.alertService
+                .open('Update error: Access Denied', { appearance: 'error' })
+                .pipe(takeUntilDestroyed(this.destroyRef));
+            })
+          ).subscribe();
         break;
     }
   }
@@ -126,16 +162,28 @@ export class HumanFormComponent {
     const formValues = this.carForm!.value;
     const car: Car = { ...formValues };
 
+    if (!this.context.data.item.car.id) {
+      this.context.data.mode = ActionWithHumans.Create;
+    }
+
+    car.id = this.context.data.item.car.id;
+
     switch (this.context.data.mode) {
       case ActionWithHumans.Create:
-        this.humanityService.createCar$(car).subscribe({
-          complete: () => this.context.completeWith(),
-        });
+        this.humanityService.createCar$(car).pipe(
+          switchMap(res => {
+            return this.humanityService.attachCar$(this.humanId, res.id);
+          }),
+          catchError((err: Error) => {
+            return this.alertService
+              .open(err.message, { appearance: 'error' })
+              .pipe(takeUntilDestroyed(this.destroyRef));
+          })
+        )
+          .subscribe();
         break;
       case ActionWithHumans.Update:
-        this.humanityService.updateCar$(car).subscribe({
-          complete: () => this.context.completeWith(),
-        });
+        this.humanityService.updateCar$(car).subscribe();
         break;
     }
   }

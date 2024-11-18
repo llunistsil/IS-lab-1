@@ -10,7 +10,7 @@
         iconStart="@tui.book-user"
         tuiIconButton
         type="button"
-        [routerLink]="[KnownRoutePath.User]"
+        [routerLink]="[KnownRoutePath.User,KnownRoutePath.AdminPanel]"
       >
         Settings
       </a>
@@ -19,6 +19,7 @@
         iconStart="@tui.log-out"
         tuiIconButton
         type="button"
+        [routerLink]="[KnownRoutePath.User]"
         (click)="logout()"
       >
         Log out
@@ -28,20 +29,6 @@
   <main tuiNavigationMain>
     <router-outlet></router-outlet>
   </main>
-  <footer>
-    @if (authService.currentUser?.username) {
-      <button
-        iconStart="@tui.plus"
-        tuiIconButton
-        type="button"
-        (click)="createNewHuman()"
-        appearance="primary-grayscale"
-        [style.border-radius.%]="100"
-      >
-        Create new human
-      </button>
-    }
-  </footer>
 
   <!--
      If you need, you can add something between Taiga portal layers:

@@ -26,6 +26,7 @@ import { TuiCardLarge } from '@taiga-ui/layout';
 import { catchError } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { KnownRoutePath } from '../../known-route-path';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -116,7 +117,7 @@ export class RegisterComponent implements OnInit {
               complete: () => this.authService.redirectAfterAuth(),
             });
         },
-        error: (err: Error) => {
+        error: (err: HttpErrorResponse) => {
           this.alertService
             .open(err.message, { appearance: 'error' })
             .pipe(takeUntilDestroyed(this.destroyRef))

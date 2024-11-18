@@ -3,4 +3,5 @@ export enum KnownRoutePath {
   User = 'user',
   Login = 'login',
   Register = 'register',
+  AdminPanel = 'admin-panel',
 }

@@ -5,7 +5,7 @@ import {
   of,
   map,
   EMPTY,
-  catchError, mergeMap, filter, toArray
+  catchError, mergeMap, toArray
 } from 'rxjs';
 import { Router } from '@angular/router';
 import { User } from './models/user';
@@ -163,12 +163,11 @@ export class AuthService{
     const url = `${environment.apiUrl}/admin/registration-requests`;
 
     return this.http
-      .get<RequestForApproval[]>(url, {
+      .get<any>(url, {
         headers: this.getAuthHeaders(),
       })
       .pipe(
-        mergeMap((requests) => requests),
-        filter((request) => !request.approved),
+        mergeMap((requests) => requests.content as RequestForApproval[]),
         toArray()
       );
   }

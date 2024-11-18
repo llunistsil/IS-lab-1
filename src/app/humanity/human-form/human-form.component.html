@@ -91,10 +91,18 @@
         <input tuiCheckbox type="checkbox" formControlName="realHero" />
         <span>Real Hero</span>
       </label>
+
+      @if (context.data.mode === 'create') {
+        <label class="checkbox">
+          <input tuiCheckbox type="checkbox" [(ngModel)]="accessAdmin" [ngModelOptions]="{standalone: true}"/>
+          <span>Access admin</span>
+        </label>
+      }
+
       <div class="tui-form__buttons">
         @if (isEditable && humanForm?.valid) {
           <button size="l" tuiButton type="submit" class="tui-form__button" (click)="save()">
-            Create
+            Submit
           </button>
           <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="activeIndex=1">
             Go To Car
@@ -129,7 +137,7 @@
         @if (isEditable) {
           <button size="l" tuiButton type="submit" class="tui-form__button" [disabled]="!carForm?.valid"
                   (click)="saveCar()">
-            Add
+            Submit
           </button>
           <button appearance="flat" size="l" tuiButton type="button" class="tui-form__button" (click)="activeIndex=0">
             Go To Human

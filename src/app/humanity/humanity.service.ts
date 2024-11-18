@@ -42,8 +42,8 @@ export class HumanityService {
       .get<PaginatedResponse<Car>>(url, { headers: this.authService.getAuthHeaders() });
   }
 
-  createHuman$(human: Human): Observable<void> {
-    return this.http.post<void>(
+  createHuman$(human: Human): Observable<any> {
+    return this.http.post<any>(
       `${ environment.apiUrl }/human-being/create`,
       {
         name: human.name,
@@ -75,25 +75,56 @@ export class HumanityService {
   updateHuman$(human: Human): Observable<void> {
     return this.http.put<void>(
       `${ environment.apiUrl }/human-being/${ human.id }`,
-      human,
+      {
+        name: human.name,
+        coordinates: human.coordinates,
+        car: human.car,
+        real_hero: human.realHero,
+        has_toothpick: human.hasToothpick,
+        mood: human.mood,
+        impact_speed: human.impactSpeed,
+        soundtrack_name: human.soundTrackName,
+        minutes_of_waiting: human.minutesOfWaiting,
+        weapon_type: human.weaponType
+      },
       { headers: this.authService.getAuthHeaders() }
     );
   }
 
-  attachCar$(human: Human, car: Car): Observable<void> {
+  accessAdmin$(id: number): Observable<void> {
+    return this.http.put<void>(
+      `${ environment.apiUrl }/human-being/${ id }/edit-status/allow`,
+      {
+        id: id
+      },
+      { headers: this.authService.getAuthHeaders() }
+    );
+  }
+
+  disAccessAdmin$(id: number): Observable<void> {
+    return this.http.put<void>(
+      `${ environment.apiUrl }/human-being/${ id }/edit-status/delete`,
+      {
+        id: id
+      },
+      { headers: this.authService.getAuthHeaders() }
+    );
+  }
+
+  attachCar$(idHuman: number, idCar: number): Observable<void> {
     const requestBody = {
-      car_id: car.id,
-      human_id: human.id
+      car_id: idCar,
+      human_id: idHuman
     };
-    return this.http.patch<void>(
+    return this.http.put<void>(
       `${ environment.apiUrl }/human-being/attach-car`,
       requestBody,
       { headers: this.authService.getAuthHeaders() }
     );
   }
 
-  createCar$(car: Car): Observable<void> {
-    return this.http.post<void>(
+  createCar$(car: Car): Observable<Car> {
+    return this.http.post<Car>(
       `${ environment.apiUrl }/car/create`,
       car,
       {
@@ -118,4 +149,39 @@ export class HumanityService {
       { headers: this.authService.getAuthHeaders() }
     );
   }
+
+  setSorrow$(): Observable<void> {
+    return this.http.put<void>(
+      `${ environment.apiUrl }/function/assign/sorrow-mood`,
+      { headers: this.authService.getAuthHeaders() }
+    );
+  }
+
+  deleteWithoutToothpick$(): Observable<void> {
+    return this.http.delete<void>(
+      `${ environment.apiUrl }/function/delete/toothpick-false`,
+      { headers: this.authService.getAuthHeaders() }
+    );
+  }
+
+  deleteByWeaponType$(weaponType: any): Observable<void> {
+    return this.http.delete<void>(
+      `${ environment.apiUrl }/function/delete/weaponType/${ weaponType }`,
+      { headers: this.authService.getAuthHeaders() }
+    );
+  }
+
+  countMinutes$(num: any): Observable<number> {
+    return this.http.get<number>(
+      `${ environment.apiUrl }/function/count-minutes-less-than`,
+      { headers: this.authService.getAuthHeaders() , params:  { maxMinutesOfWaiting: num },}
+    );
+  }
+
+  uniqueImpactSpeed$(): Observable<number[]> {
+    return this.http.get<number[]>(
+      `${ environment.apiUrl }/function/uniqueImpactSpeed`,
+    )
+  }
+
 }
