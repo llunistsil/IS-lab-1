@@ -73,7 +73,7 @@
 
       <tui-textfield class="tui-form__row">
         <label for="sound" tuiLabel>Soundtrack Name</label>
-        <input id="sound" tuiTextfield formControlName="soundTrackName" />
+        <input id="sound" tuiTextfield formControlName="soundtrackName" />
       </tui-textfield>
 
       <tui-textfield class="tui-form__row">
@@ -86,11 +86,6 @@
         <input tuiTextfieldLegacy placeholder="Weapon Type" />
         <tui-data-list-wrapper *tuiDataList [items]="['HAMMER', 'AXE', 'SHOTGUN', 'MACHINE_GUN', 'BAT']" />
       </tui-select>
-
-      <label class="checkbox">
-        <input tuiCheckbox type="checkbox" formControlName="realHero" />
-        <span>Real Hero</span>
-      </label>
 
       @if (context.data.mode === 'create') {
         <label class="checkbox">

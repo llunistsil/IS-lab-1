@@ -90,7 +90,7 @@ export class HumanFormComponent {
         hasToothpick: [this.context.data.item?.hasToothpick?? false, Validators.required],
         mood: [this.context.data.item?.mood ?? null, Validators.required],
         impactSpeed: [this.context.data.item?.impactSpeed ?? null, Validators.min(0)],
-        soundTrackName: [this.context.data.item?.soundtrackName ?? null, Validators.required],
+        soundtrackName: [this.context.data.item?.soundtrackName ?? null, Validators.required],
         minutesOfWaiting: [this.context.data.item?.minutesOfWaiting ?? null, Validators.required],
         weaponType: [this.context.data.item?.weaponType ?? null, Validators.required]
       });
