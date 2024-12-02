@@ -86,13 +86,13 @@ export class HumanFormComponent {
           x: [this.context.data.item?.coordinates.x ?? null, Validators.required],
           y: [this.context.data.item?.coordinates.y ?? null, Validators.required]
         }),
-        realHero: [this.context.data.item?.real_hero ?? false],
-        hasToothpick: [this.context.data.item?.has_toothpick ?? false, Validators.required],
+        realHero: [this.context.data.item?.realHero ?? false],
+        hasToothpick: [this.context.data.item?.hasToothpick?? false, Validators.required],
         mood: [this.context.data.item?.mood ?? null, Validators.required],
-        impactSpeed: [this.context.data.item?.impact_speed ?? null, Validators.min(0)],
-        soundTrackName: [this.context.data.item?.soundtrack_name ?? null, Validators.required],
-        minutesOfWaiting: [this.context.data.item?.minutes_of_waiting ?? null, Validators.required],
-        weaponType: [this.context.data.item?.weapon_type ?? null, Validators.required]
+        impactSpeed: [this.context.data.item?.impactSpeed ?? null, Validators.min(0)],
+        soundTrackName: [this.context.data.item?.soundtrackName ?? null, Validators.required],
+        minutesOfWaiting: [this.context.data.item?.minutesOfWaiting ?? null, Validators.required],
+        weaponType: [this.context.data.item?.weaponType ?? null, Validators.required]
       });
 
       this.carForm = this.fb.group({
