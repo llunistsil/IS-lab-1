@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, INJECTOR, input, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, INJECTOR } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   TuiAlertService,
@@ -13,13 +13,15 @@ import { RouterLink } from '@angular/router';
 import { TuiAccordion, TuiDataListWrapper, TuiStatus } from '@taiga-ui/kit';
 import { TuiTable, TuiTableFilters, TuiTablePagination } from '@taiga-ui/addon-table';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ActionWithHumans, Human, WeaponType } from './models/human';
+import { ActionWithHumans, Human, toHuman, WeaponType } from './models/human';
 import { HumanityService } from './humanity.service';
 import { TuiAutoFocus, TuiLet, tuiTakeUntilDestroyed } from '@taiga-ui/cdk';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { HumanFormComponent, HumanFormDialogContext } from './human-form/human-form.component';
-import { merge, Subject, switchMap, timer } from 'rxjs';
+import { BehaviorSubject, merge, Subject, switchMap, take, tap } from 'rxjs';
 import { TuiInputModule, TuiSelectModule } from '@taiga-ui/legacy';
+import { HumanityWebSocketService } from './humanity-web-socket.service';
+import { WSData, WSOperationType } from './models/web-socket';
 
 @Component({
   selector: 'app-humanity',
@@ -34,6 +36,7 @@ export class HumanityComponent {
   private readonly injector = inject(INJECTOR);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly alertService = inject(TuiAlertService);
+  protected readonly humanityWebSocketService = inject(HumanityWebSocketService);
   private readonly reset = new Subject();
   protected open = false;
   protected openWeapon = false;
@@ -45,16 +48,14 @@ export class HumanityComponent {
     weaponType: new FormControl('')
   });
 
-  readonly inputData = input<Human[] | null>(null);
-
   readonly specialActions = ['Set Sorrow', 'MinutesOfWaiting Filter', 'Sum impactSpeed', 'Delete without toothpick', 'Delete by Weapon'];
 
   readonly filterableColumns = [
     'id',
     'name',
-    'impact_speed',
-    'soundtrack_name',
-    'minutes_of_waiting'
+    'impactSpeed',
+    'soundtrackName',
+    'minutesOfWaiting'
   ] as const;
   readonly filtersForm = new FormGroup<
     Partial<Record<keyof Human, FormControl>>
@@ -69,33 +70,34 @@ export class HumanityComponent {
   );
   readonly filterFn = (item: object, value: object | null): boolean =>
     !value || item.toString().includes(value.toString());
-  readonly isLoading = signal(false);
-  readonly page = signal(0);
-  readonly totalItems = signal(0);
-  readonly data = signal<Human[]>([]);
-  readonly pageSize = 5;
   readonly humanColumns = [
     'id',
     'name',
-    'real_hero',
-    'has_toothpick',
+    'realHero',
+    'hasToothpick',
     'mood',
-    'impact_speed',
-    'soundtrack_name',
-    'minutes_of_waiting',
-    'weapon_type'
+    'impactSpeed',
+    'soundtrackName',
+    'minutesOfWaiting',
+    'weaponType'
   ] as const;
+  readonly isLoading$ = new BehaviorSubject(false);
+  readonly page$ = new BehaviorSubject(0);
+  readonly sort$ = new BehaviorSubject(this.humanColumns[0])
+  readonly totalItems$ = new BehaviorSubject(0);
+  readonly data$ = new BehaviorSubject<Human[]>([]);
+  readonly pageSize$ = new BehaviorSubject(5);
   readonly columns = [...this.humanColumns, 'actions'] as const;
   readonly columnNames = {
     id: 'ID',
     name: 'Name',
-    real_hero: 'Real Hero',
-    has_toothpick: 'Has Toothpick',
+    realHero: 'Real Hero',
+    hasToothpick: 'Has Toothpick',
     mood: 'Mood',
-    impact_speed: 'Impact Speed',
-    soundtrack_name: 'Sound Track Name',
-    minutes_of_waiting: 'Minutes Of Waiting',
-    weapon_type: 'Weapon Type',
+    impactSpeed: 'Impact Speed',
+    soundtrackName: 'Sound Track Name',
+    minutesOfWaiting: 'Minutes Of Waiting',
+    weaponType: 'Weapon Type',
     actions: 'Actions'
   };
   readonly actionWithHumans = ActionWithHumans;
@@ -103,34 +105,30 @@ export class HumanityComponent {
   constructor() {
     effect(
       (onCleanup) => {
-        const inputData = this.inputData();
-        if (inputData) {
-          this.data.set(inputData);
-          this.totalItems.set(inputData.length);
-          return;
-        }
 
-        this.isLoading.set(true);
+        this.isLoading$.next(true);
 
         const getHumanListSubscription = merge(
-          timer(0, 5000),
+          this.page$,
+          this.pageSize$,
           this.reset
-        )
-          .pipe(
-            switchMap(() =>
-              this.humanityService.getHumanList$({
-                page: this.page(),
-                size: this.pageSize
-              })
-            ),
-            tuiTakeUntilDestroyed(this.destroyRef)
+        ).pipe(
+          tap(console.log),
+          tuiTakeUntilDestroyed(this.destroyRef),
+          switchMap(() =>
+            this.humanityService.getHumanList$({
+              page: this.page$.value,
+              size: this.pageSize$.value,
+              sort: [ this.sort$.value ]
+            })
           )
-          .subscribe((response) => {
-            this.data.set(response.content);
-            console.log(this.data());
-            this.totalItems.set(response.totalElements);
-            this.isLoading.set(false);
-          });
+        ).subscribe((response) => {
+          this.data$.next(response.content.map((human) => {
+            return toHuman(human);
+          }));
+          this.totalItems$.next(response.totalElements);
+          this.isLoading$.next(false);
+        });
 
         onCleanup(() => {
           getHumanListSubscription.unsubscribe();
@@ -138,6 +136,17 @@ export class HumanityComponent {
       },
       { allowSignalWrites: true }
     );
+    this.humanityWebSocketService.onMessage()
+      .subscribe((messages: WSData) => {
+        if (
+          messages.operationType === WSOperationType.CREATE_HUMAN ||
+          messages.operationType === WSOperationType.UPDATE_HUMAN ||
+          messages.operationType === WSOperationType.ATTACH_CAR ||
+          messages.operationType === WSOperationType.UPDATE_CAR
+        ) {
+          this.reset.next(true);
+        }
+      });
   }
 
   edit(item: any): void {
@@ -154,11 +163,11 @@ export class HumanityComponent {
         }
       )
       .pipe(tuiTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.reset.next(null));
+      .subscribe();
   }
 
   remove(item: Human): void {
-    this.humanityService.removeHuman$(item).subscribe(() => this.reset.next(null));
+    this.humanityService.removeHuman$(item).subscribe();
   }
 
   view(item: Human): void {
@@ -191,16 +200,16 @@ export class HumanityComponent {
         }
       )
       .pipe(tuiTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.reset.next(null));
+      .subscribe();
   }
 
   onMenuClick(item: string): void {
     switch (item) {
       case 'Set Sorrow':
-        this.humanityService.setSorrow$().subscribe();
+        this.humanityService.setSorrow$().subscribe(() => this.reset.next(true));
         break;
       case 'Delete without toothpick':
-        this.humanityService.deleteWithoutToothpick$().subscribe();
+        this.humanityService.deleteWithoutToothpick$().subscribe(() => this.reset.next(true));
         this.open = false;
         break;
       case 'Delete by Weapon':
@@ -214,7 +223,7 @@ export class HumanityComponent {
           res => {
             this.alertService.open(res, { label: 'Unique:' }).subscribe();
           }
-        )
+        );
     }
   }
 
@@ -225,6 +234,10 @@ export class HumanityComponent {
           this.alertService.open(res, { label: 'Count:' }).subscribe();
         }
       );
+  }
+
+  deleteByWeapon(weapon: any): void {
+    this.humanityService.deleteByWeaponType$(weapon).pipe(take(1)).subscribe(() => this.reset.next(true));
   }
 
   protected readonly WeaponType = WeaponType;

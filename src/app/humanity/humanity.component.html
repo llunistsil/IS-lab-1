@@ -20,7 +20,7 @@
   </tui-accordion-item>
   <tui-loader
     [overlay]="true"
-    [showLoader]="isLoading()"
+    [showLoader]="isLoading$.value"
     class="table-container"
   >
     <table tuiTable class="tui-space_auto" [columns]="columns">
@@ -34,7 +34,7 @@
       </tr>
       </thead>
       <tbody
-        *tuiLet="data() | tuiTableSort as sortedData"
+        *tuiLet="data$.value | tuiTableSort as sortedData"
         tuiTbody
         [data]="sortedData"
       >
@@ -85,10 +85,10 @@
         <td [colSpan]="columns.length">
           <tui-table-pagination
             class="tui-space_top-2"
-            [page]="page()"
-            [size]="pageSize"
-            [total]="totalItems()"
-            (paginationChange)="page.set($event.page)"
+            [page]="page$.value"
+            [size]="pageSize$.value"
+            [total]="totalItems$.value"
+            (paginationChange)="$event.page ? page$.next($event.page) : pageSize$.next($event.size)"
           />
         </td>
       </tr>
@@ -158,7 +158,7 @@
       <button
         tuiButton
         type="submit"
-        (click)="this.humanityService.deleteByWeaponType$(this.weaponForm.value.weaponType).subscribe()"
+        (click)="this.deleteByWeapon(this.weaponForm.value.weaponType)"
       >
         Delete
       </button>

@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../auth/auth.service';
 import { environment } from '../../environments/environment';
-import { Human } from './models/human';
+import { Human, HumanDTO } from './models/human';
 import { PaginatedRequest, PaginatedResponse } from './models/params';
 import { Car } from './models/car';
 
@@ -14,11 +14,11 @@ export class HumanityService {
   public readonly authService = inject(AuthService);
   private readonly http = inject(HttpClient);
 
-  getHumanList$(params: PaginatedRequest): Observable<PaginatedResponse<Human>> {
+  getHumanList$(params: PaginatedRequest): Observable<PaginatedResponse<HumanDTO>> {
     const url = `${ environment.apiUrl }/human-being`;
 
     return this.http
-      .get<PaginatedResponse<Human>>(url, { headers: this.authService.getAuthHeaders(), params: params });
+      .get<PaginatedResponse<HumanDTO>>(url, { headers: this.authService.getAuthHeaders(), params: params });
   }
 
   getHumanByNameContaining$(): Observable<PaginatedResponse<Human>> {
@@ -53,7 +53,7 @@ export class HumanityService {
         has_toothpick: human.hasToothpick,
         mood: human.mood,
         impact_speed: human.impactSpeed,
-        soundtrack_name: human.soundTrackName,
+        soundtrack_name: human.soundtrackName,
         minutes_of_waiting: human.minutesOfWaiting,
         weapon_type: human.weaponType
       },
@@ -83,7 +83,7 @@ export class HumanityService {
         has_toothpick: human.hasToothpick,
         mood: human.mood,
         impact_speed: human.impactSpeed,
-        soundtrack_name: human.soundTrackName,
+        soundtrack_name: human.soundtrackName,
         minutes_of_waiting: human.minutesOfWaiting,
         weapon_type: human.weaponType
       },
@@ -174,14 +174,14 @@ export class HumanityService {
   countMinutes$(num: any): Observable<number> {
     return this.http.get<number>(
       `${ environment.apiUrl }/function/count-minutes-less-than`,
-      { headers: this.authService.getAuthHeaders() , params:  { maxMinutesOfWaiting: num },}
+      { headers: this.authService.getAuthHeaders(), params: { maxMinutesOfWaiting: num } }
     );
   }
 
   uniqueImpactSpeed$(): Observable<number[]> {
     return this.http.get<number[]>(
-      `${ environment.apiUrl }/function/uniqueImpactSpeed`,
-    )
+      `${ environment.apiUrl }/function/uniqueImpactSpeed`
+    );
   }
 
 }
