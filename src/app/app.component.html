@@ -6,6 +6,14 @@
     </span>
     <hr />
     @if (authService.currentUser?.username) {
+      <a
+        iconStart="@tui.files"
+        tuiIconButton
+        type="button"
+        [routerLink]="[KnownRoutePath.FileExport]"
+      >
+        File Export
+      </a>
       @if (authService.currentUser?.accountType === AccountType.Admin) {
         <a
           iconStart="@tui.book-user"

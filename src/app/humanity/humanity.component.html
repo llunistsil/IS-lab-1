@@ -98,6 +98,18 @@
 </ng-container>
 <div class="create">
   <button
+    class="button"
+    tuiIconButton
+    iconStart="@tui.file-down"
+    type="button"
+    appearance="primary-grayscale"
+    [style.border-radius.%]="100"
+    (click)="openFileExporter()"
+  >
+    Export file
+  </button>
+  <button
+    class="button"
     iconStart="@tui.menu"
     appearance="primary-grayscale"
     [style.border-radius.%]="100"
@@ -112,6 +124,7 @@
     Menu
   </button>
   <button
+    class="button"
     iconStart="@tui.plus"
     tuiIconButton
     type="button"

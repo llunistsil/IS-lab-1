@@ -1,0 +1,46 @@
+<label
+  *ngIf="!control.value"
+  tuiInputFiles
+>
+  <input
+    accept="application/json"
+    tuiInputFiles
+    [formControl]="control"
+  />
+</label>
+
+<tui-files class="tui-space_top-1">
+  <tui-file
+    *ngIf="loadedFiles$ | async as file"
+    [file]="file"
+    (remove)="removeFile()"
+  />
+
+  <tui-file
+    *ngIf="failedFiles$ | async as file"
+    state="error"
+    [file]="file"
+    (remove)="removeFile()"
+  />
+
+  <tui-file
+    *ngIf="loadingFiles$ | async as file"
+    state="loading"
+    [file]="file"
+    (remove)="removeFile()"
+  />
+</tui-files>
+<button
+  class="button tui-container_menu tui-space_auto"
+  *ngIf="loadedFiles$ | async as file"
+  appearance="primary-grayscale"
+  tuiButton
+  type="button"
+  (click)="exportFile(file)"
+>
+  Отправить файл
+  <tui-icon
+    icon="@tui.arrow-right-from-line"
+    [style.height.rem]="1"
+  />
+</button>

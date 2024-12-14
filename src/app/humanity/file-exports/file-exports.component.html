@@ -1,0 +1,36 @@
+<tui-loader
+  [overlay]="true"
+  [showLoader]="isLoading()"
+  class="table-container"
+>
+  <table tuiTable class="tui-space_auto" [columns]="columns">
+    <thead>
+    <tr tuiThGroup>
+      @for (column of columns; track column) {
+        <th *tuiHead="column" tuiTh>
+          {{ columnNames[column] }}
+        </th>
+      }
+    </tr>
+    </thead>
+    <tbody
+      *tuiLet="data() | tuiTableSort as sortedData"
+      tuiTbody
+      [data]="sortedData"
+    >
+    <tr *ngFor="let item of sortedData" tuiTr>
+      @for (column of columns; track column) {
+        @if (column === 'user') {
+          <td *tuiCell="column" tuiTd>
+            {{ item[column].username }}
+          </td>
+        } @else {
+          <td *tuiCell="column" tuiTd>
+            {{ item[column] }}
+          </td>
+        }
+      }
+    </tr>
+    </tbody>
+  </table>
+</tui-loader>

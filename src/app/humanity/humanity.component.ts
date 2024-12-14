@@ -22,6 +22,7 @@ import { BehaviorSubject, merge, Subject, switchMap, take, tap } from 'rxjs';
 import { TuiInputModule, TuiSelectModule } from '@taiga-ui/legacy';
 import { HumanityWebSocketService } from './humanity-web-socket.service';
 import { WSData, WSOperationType } from './models/web-socket';
+import { ExportFileFormComponent } from './export-file-form/export-file-form.component';
 
 @Component({
   selector: 'app-humanity',
@@ -197,6 +198,19 @@ export class HumanityComponent {
           },
           dismissible: true,
           label: 'Create human'
+        }
+      )
+      .pipe(tuiTakeUntilDestroyed(this.destroyRef))
+      .subscribe();
+  }
+
+  openFileExporter(): void {
+    this.dialogService
+      .open(
+        new PolymorpheusComponent(ExportFileFormComponent, this.injector),
+        {
+          dismissible: true,
+          label: 'Export file'
         }
       )
       .pipe(tuiTakeUntilDestroyed(this.destroyRef))
