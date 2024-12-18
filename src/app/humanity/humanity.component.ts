@@ -23,6 +23,7 @@ import { TuiInputModule, TuiSelectModule } from '@taiga-ui/legacy';
 import { HumanityWebSocketService } from './humanity-web-socket.service';
 import { WSData, WSOperationType } from './models/web-socket';
 import { ExportFileFormComponent } from './export-file-form/export-file-form.component';
+import { ImportFileFormComponent } from './import-file-form/import-file-form.component';
 
 @Component({
   selector: 'app-humanity',
@@ -211,6 +212,19 @@ export class HumanityComponent {
         {
           dismissible: true,
           label: 'Export file'
+        }
+      )
+      .pipe(tuiTakeUntilDestroyed(this.destroyRef))
+      .subscribe();
+  }
+
+  openFileImporter(): void {
+    this.dialogService
+      .open(
+        new PolymorpheusComponent(ImportFileFormComponent, this.injector),
+        {
+          dismissible: true,
+          label: 'Import file'
         }
       )
       .pipe(tuiTakeUntilDestroyed(this.destroyRef))

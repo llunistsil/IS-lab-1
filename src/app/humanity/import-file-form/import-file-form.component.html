@@ -1,0 +1,17 @@
+<tui-textfield class="tui-form__row">
+  <label for="id" tuiLabel>Export ID</label>
+  <input id="id" tuiTextfield [formControl]="control" />
+</tui-textfield>
+<button
+  class="button tui-container_menu tui-space_auto"
+  appearance="primary-grayscale"
+  tuiButton
+  type="button"
+  (click)="importFile(control.value + '')"
+>
+  Скачать файл
+  <tui-icon
+    icon="@tui.arrow-right-from-line"
+    [style.height.rem]="1"
+  />
+</button>

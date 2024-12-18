@@ -96,7 +96,7 @@
     </table>
   </tui-loader>
 </ng-container>
-<div class="create">
+<div class="file">
   <button
     class="button"
     tuiIconButton
@@ -104,10 +104,23 @@
     type="button"
     appearance="primary-grayscale"
     [style.border-radius.%]="100"
+    (click)="openFileImporter()"
+  >
+    Import file
+  </button>
+  <button
+    class="button"
+    tuiIconButton
+    iconStart="@tui.file-up"
+    type="button"
+    appearance="primary-grayscale"
+    [style.border-radius.%]="100"
     (click)="openFileExporter()"
   >
     Export file
   </button>
+</div>
+<div class="create">
   <button
     class="button"
     iconStart="@tui.menu"
